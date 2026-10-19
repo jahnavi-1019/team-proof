@@ -1,0 +1,26 @@
+{
+  "name": "@portfolio/team-proof",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Evidence-based team contribution ledger recording architecture, code reviews, and system hygiene without vanity metrics",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test dist/*.test.js",
+    "ui": "npx serve -l 3000 ."
+  },
+  "keywords": [
+    "team-contribution",
+    "engineering-metrics",
+    "anti-gaming",
+    "code-review",
+    "architecture-decision-records"
+  ],
+  "author": "Antigravity Engineering",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2"
+  }
+}

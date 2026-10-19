@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeamProof — Multi-Dimensional Engineering Contribution Ledger</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #070912; color: #f1f5f9; }
+    code, pre { font-family: 'Fira Code', monospace; }
+    .glass-panel { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #070912; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col custom-scroll">
+
+  <!-- HEADER -->
+  <header class="border-b border-slate-800 bg-slate-950/80 sticky top-0 z-50 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+          🏆
+        </div>
+        <div>
+          <span class="font-bold text-lg text-white tracking-tight">TeamProof<span class="text-indigo-400">.Ledger</span></span>
+          <span class="hidden sm:inline-block ml-2 text-xs px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-400 border border-indigo-800 font-mono">Anti-Vanity Contribution Verifier</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <select id="profilePresetSelect" onchange="loadProfileScenario(this.value)" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500 font-medium">
+          <option value="staff_architect">Profile: Alex River (Staff Architect & Reviewer)</option>
+          <option value="sre_incident">Profile: Maya Chen (Senior SRE / Outage Lead)</option>
+          <option value="code_hygiene">Profile: David Kim (Hygiene & Dead Code Eliminator)</option>
+        </select>
+        <button onclick="auditContributions()" class="px-4 py-1.5 rounded-lg bg-indigo-500 hover:bg-indigo-400 text-slate-950 text-xs font-bold shadow-lg shadow-indigo-500/20 transition flex items-center gap-1.5">
+          <span>⚡</span> Audit Ledger
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN INTERFACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- METRICS STRIP -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div class="glass-panel p-3.5 rounded-xl border-slate-800">
+        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-0.5">Verified Impacts</div>
+        <div id="stat-impacts" class="text-lg font-bold text-emerald-400">4 Evidence Records</div>
+      </div>
+      <div class="glass-panel p-3.5 rounded-xl border-slate-800">
+        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-0.5">Architecture ADRs</div>
+        <div id="stat-adr" class="text-lg font-bold text-indigo-400">2 Authored</div>
+      </div>
+      <div class="glass-panel p-3.5 rounded-xl border-slate-800">
+        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-0.5">Critical Review Saves</div>
+        <div id="stat-reviews" class="text-lg font-bold text-purple-400">1 Flaw Blocked</div>
+      </div>
+      <div class="glass-panel p-3.5 rounded-xl border-slate-800">
+        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-0.5">Net Code Cleaned</div>
+        <div id="stat-hygiene" class="text-lg font-bold text-cyan-400">-4,200 Dead Lines</div>
+      </div>
+      <div class="glass-panel p-3.5 rounded-xl border-slate-800">
+        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-0.5">Anti-Gaming Filter</div>
+        <div class="text-lg font-bold text-emerald-400">100% Lockfiles Purged</div>
+      </div>
+    </div>
+
+    <!-- MAIN TWO-COLUMN SPLIT -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- LEFT: MULTI-FACETED CONTRIBUTION LEDGER -->
+      <div class="lg:col-span-7 space-y-4">
+        <div class="glass-panel rounded-xl p-5 border-slate-800 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-xs font-bold text-white uppercase tracking-wider">Multi-Faceted Contribution Ledger</span>
+              <p class="text-xs text-slate-400">Rewarding high-leverage engineering decisions, not line-count bloat.</p>
+            </div>
+            <span class="text-xs font-mono text-indigo-400 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800" id="engineerName">Alex River</span>
+          </div>
+
+          <div class="space-y-3" id="ledgerList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: ANTI-GAMING AUDIT & LEVERAGE MATRIX -->
+      <div class="lg:col-span-5 space-y-4">
+        <div class="glass-panel rounded-xl p-5 border-slate-800 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
+              <span>🛡️</span> Anti-Gaming Commit Audit
+            </span>
+            <span class="text-[10px] font-mono text-emerald-400">Zero Vanity Bloat</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-300 font-bold">Excluded Vanity Commit</span>
+              <span class="px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-800 text-[10px] font-mono font-bold">FLAGGED BLOAT</span>
+            </div>
+            <div class="text-[11px] text-slate-400 leading-relaxed">
+              Commit <code class="text-red-300 bg-slate-950 px-1 py-0.5 rounded">sha-9f81a</code> added 18,400 lines modifying <code class="text-cyan-300">package-lock.json</code> and <code class="text-cyan-300">dist/bundle.js</code>.
+            </div>
+            <div class="text-[10px] font-mono text-emerald-400 pt-1">
+              ✓ Filter Decision: Excluded from developer contribution score.
+            </div>
+          </div>
+
+          <!-- PEER ENDORSEMENTS -->
+          <div class="space-y-2 pt-2 border-t border-slate-800">
+            <span class="text-[11px] font-mono uppercase text-slate-400 tracking-wider">Peer Endorsement Network</span>
+            <div class="space-y-2 text-xs font-mono" id="endorsementsList">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    const PROFILES = {
+      staff_architect: {
+        name: "Alex River (Staff Architect)",
+        impacts: "4 Evidence Records",
+        adr: "2 Authored",
+        reviews: "1 Flaw Blocked",
+        hygiene: "-4,200 Dead Lines",
+        contributions: [
+          {
+            title: "Authored ADR-014: Zero-Knowledge Client Sessions",
+            dim: "ARCHITECTURE_DECISION",
+            uri: "docs/adr/014-zk-sessions.md",
+            impact: "Eliminated central Redis bottleneck, reducing tail p99 latency by 45% and saving $4,200/mo.",
+            endorsers: ["Sarah Jenkins (VP Eng)", "Carlos Gomez (Tech Lead)"]
+          },
+          {
+            title: "Code Review PR #502: Caught SQL Injection Vulnerability",
+            dim: "PEER_REVIEW_LEVERAGE",
+            uri: "github.com/org/repo/pull/502",
+            impact: "Identified unsafe query string interpolation in public search endpoint before staging merge.",
+            endorsers: ["Dave Miller (Security Lead)"]
+          },
+          {
+            title: "Dead Code Deletion: Deprecated v1 Billing Endpoints",
+            dim: "CODE_QUALITY_HYGIENE",
+            uri: "github.com/org/repo/pull/489",
+            impact: "Safely deleted 4,200 lines of unmaintained legacy code and reduced attack surface.",
+            endorsers: ["Maya Chen (Staff Eng)"]
+          }
+        ],
+        endorsements: [
+          { peer: "Sarah Jenkins", role: "VP Eng", quote: "ADR-014 unblocked the entire architecture migration." },
+          { peer: "Dave Miller", role: "Security Lead", quote: "Alex's PR reviews are our highest-leverage security filter." }
+        ]
+      },
+      sre_incident: {
+        name: "Maya Chen (Senior SRE)",
+        impacts: "3 Evidence Records",
+        adr: "1 Authored",
+        reviews: "0 Reviews",
+        hygiene: "+0 Lines",
+        contributions: [
+          {
+            title: "Production Incident 104 Post-Mortem & Mitigation",
+            dim: "INCIDENT_RESOLUTION",
+            uri: "wiki/incidents/2026-10-04-outage.md",
+            impact: "Restored payment ingestion in 8 minutes during Black Friday database connection pool exhaustion.",
+            endorsers: ["Alex River", "VP Infrastructure"]
+          },
+          {
+            title: "Authored ADR-019: Connection Pooling & Circuit Breakers",
+            dim: "ARCHITECTURE_DECISION",
+            uri: "docs/adr/019-circuit-breakers.md",
+            impact: "Designed automated circuit breakers preventing cascading microservice failures.",
+            endorsers: ["Carlos Gomez"]
+          }
+        ],
+        endorsements: [
+          { peer: "Alex River", role: "Staff Architect", quote: "Maya's calm triage saved our biggest revenue day of the year." }
+        ]
+      },
+      code_hygiene: {
+        name: "David Kim (Software Engineer)",
+        impacts: "3 Evidence Records",
+        adr: "0 Authored",
+        reviews: "2 Reviews",
+        hygiene: "-8,500 Dead Lines",
+        contributions: [
+          {
+            title: "Refactor: Unified Date & Time Utils Across Monorepo",
+            dim: "CODE_QUALITY_HYGIENE",
+            uri: "github.com/org/repo/pull/610",
+            impact: "Consolidated 6 conflicting date libraries into single temporal parser.",
+            endorsers: ["Maya Chen"]
+          }
+        ],
+        endorsements: [
+          { peer: "Maya Chen", role: "Senior SRE", quote: "David systematically clears our technical debt backlog." }
+        ]
+      }
+    };
+
+    let currentProfileKey = 'staff_architect';
+
+    function loadProfileScenario(key) {
+      currentProfileKey = key;
+      updateUI();
+    }
+
+    function auditContributions() {
+      updateUI();
+    }
+
+    function updateUI() {
+      const data = PROFILES[currentProfileKey];
+
+      document.getElementById('stat-impacts').innerText = data.impacts;
+      document.getElementById('stat-adr').innerText = data.adr;
+      document.getElementById('stat-reviews').innerText = data.reviews;
+      document.getElementById('stat-hygiene').innerText = data.hygiene;
+      document.getElementById('engineerName').innerText = data.name;
+
+      document.getElementById('ledgerList').innerHTML = data.contributions.map(c => {
+        let badgeColor = 'indigo';
+        if (c.dim === 'ARCHITECTURE_DECISION') badgeColor = 'indigo';
+        else if (c.dim === 'PEER_REVIEW_LEVERAGE') badgeColor = 'purple';
+        else if (c.dim === 'INCIDENT_RESOLUTION') badgeColor = 'red';
+        else badgeColor = 'cyan';
+
+        return `
+          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-white">${c.title}</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-${badgeColor}-950 text-${badgeColor}-400 border border-${badgeColor}-800 font-bold">${c.dim}</span>
+            </div>
+            <div class="text-[11px] text-slate-300 leading-relaxed">${c.impact}</div>
+            <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-1">
+              <span>Evidence: <strong class="text-cyan-400">${c.uri}</strong></span>
+              <span class="text-emerald-400">Endorsed by: ${c.endorsers.join(', ')}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('endorsementsList').innerHTML = data.endorsements.map(e => `
+        <div class="p-2.5 rounded bg-slate-950 border border-slate-800 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-indigo-300 font-bold">${e.peer}</span>
+            <span class="text-[10px] text-slate-500">${e.role}</span>
+          </div>
+          <div class="text-[11px] text-slate-400 italic">"${e.quote}"</div>
+        </div>
+      `).join('');
+    }
+
+    // Initialize
+    updateUI();
+  </script>
+</body>
+</html>
